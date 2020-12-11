@@ -6,9 +6,9 @@ from .models import Video
 class VideoForm(forms.ModelForm):
     class Meta:
         model = Video
-        fields = ['title', 'url', 'youtube_id']
+        fields = ['url']
         labels = {
-            'youtube_id': 'YouTube Id'
+            'url': 'YouTube URL'
         }
 
 
