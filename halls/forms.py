@@ -13,4 +13,4 @@ class VideoForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    search_form = forms.CharField(max_length=255, label='Search for videos:')
+    search_line = forms.CharField(max_length=255, label='Search for videos:')

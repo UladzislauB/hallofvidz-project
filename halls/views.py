@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import generic
@@ -27,7 +27,7 @@ def add_video(request, pk):
     form = VideoForm()
     search_form = SearchForm()
     hall = Hall.objects.get(pk=pk)
-    print(YOUTUBE_API_KEY)
+    # print(YOUTUBE_API_KEY)
     if hall.user != request.user:
         raise Http404
 
@@ -55,6 +55,24 @@ def add_video(request, pk):
             errors.append('Needs to be a valid YouTube URL')
 
     return render(request, 'halls/add_video.html', {'form': form, 'search_form': search_form})
+
+
+def video_search(request):
+    search_form = SearchForm(request.GET)
+    if search_form.is_valid():
+        search_line = search_form.cleaned_data['search_line']
+        search_line_encoded = urllib.parse.quote(search_line)
+        response = requests.get(
+            f'https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q={search_line_encoded}&key={YOUTUBE_API_KEY}'
+        )
+        return JsonResponse(response.json())
+    return JsonResponse({'error': 'Not able to validate form'})
+
+
+class DeleteVideo(generic.DeleteView):
+    model = Video
+    template_name = 'halls/delete_video.html'
+    success_url = reverse_lazy('dashboard')
 
 
 class SignUp(generic.CreateView):
