@@ -8,6 +8,8 @@ from django.forms.utils import ErrorList
 import urllib
 import requests
 import os
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Hall, Video
 from .forms import VideoForm, SearchForm
@@ -21,12 +23,14 @@ def home(request):
     return render(request, 'halls/home.html', {'recent_halls': recent_halls, 'popular_halls': popular_halls})
 
 
+@login_required
 def dashboard(request):
     halls = Hall.objects.filter(user=request.user)
     print(len(halls))
     return render(request, 'halls/dashboard.html', {'halls': halls})
 
 
+@login_required
 def add_video(request, pk):
     form = VideoForm()
     search_form = SearchForm()
@@ -61,6 +65,7 @@ def add_video(request, pk):
     return render(request, 'halls/add_video.html', {'form': form, 'search_form': search_form})
 
 
+@login_required
 def video_search(request):
     search_form = SearchForm(request.GET)
     if search_form.is_valid():
@@ -73,10 +78,16 @@ def video_search(request):
     return JsonResponse({'error': 'Not able to validate form'})
 
 
-class DeleteVideo(generic.DeleteView):
+class DeleteVideo(LoginRequiredMixin, generic.DeleteView):
     model = Video
     template_name = 'halls/delete_video.html'
     success_url = reverse_lazy('dashboard')
+
+    def get_object(self, queryset=None):
+        video = super(DeleteVideo, self).get_object()
+        if not video.hall.user == self.request.user:
+            raise Http404
+        return video
 
 
 class SignUp(generic.CreateView):
@@ -92,7 +103,7 @@ class SignUp(generic.CreateView):
         return view
 
 
-class CreateHall(generic.CreateView):
+class CreateHall(LoginRequiredMixin, generic.CreateView):
     model = Hall
     fields = ['title']
     template_name = 'halls/create_hall.html'
@@ -109,14 +120,26 @@ class DetailHall(generic.DetailView):
     template_name = 'halls/detail_hall.html'
 
 
-class UpdateHall(generic.UpdateView):
+class UpdateHall(LoginRequiredMixin, generic.UpdateView):
     model = Hall
     template_name = 'halls/update_hall.html'
     fields = ['title']
     success_url = reverse_lazy('dashboard')
 
+    def get_object(self, queryset=None):
+        hall = super(UpdateHall, self).get_object()
+        if not hall.user == self.request.user:
+            raise Http404
+        return hall
 
-class DeleteHall(generic.DeleteView):
+
+class DeleteHall(LoginRequiredMixin, generic.DeleteView):
     model = Hall
     template_name = 'halls/delete_hall.html'
     success_url = reverse_lazy('dashboard')
+
+    def get_object(self, queryset=None):
+        hall = super(DeleteHall, self).get_object()
+        if not hall.user == self.request.user:
+            raise Http404
+        return hall
