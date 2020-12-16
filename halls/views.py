@@ -16,11 +16,15 @@ YOUTUBE_API_KEY = str(os.getenv('YOUTUBE_API_KEY'))
 
 
 def home(request):
-    return render(request, 'halls/home.html')
+    recent_halls = Hall.objects.order_by('-id')[:3]
+    popular_halls = [Hall.objects.get(pk=2), Hall.objects.get(pk=3), Hall.objects.get(pk=4)]
+    return render(request, 'halls/home.html', {'recent_halls': recent_halls, 'popular_halls': popular_halls})
 
 
 def dashboard(request):
-    return render(request, 'halls/dashboard.html')
+    halls = Hall.objects.filter(user=request.user)
+    print(len(halls))
+    return render(request, 'halls/dashboard.html', {'halls': halls})
 
 
 def add_video(request, pk):
@@ -77,7 +81,7 @@ class DeleteVideo(generic.DeleteView):
 
 class SignUp(generic.CreateView):
     form_class = UserCreationForm
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('dashboard')
     template_name = 'registration/signup.html'
 
     def form_valid(self, form):
@@ -97,7 +101,7 @@ class CreateHall(generic.CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         super(CreateHall, self).form_valid(form)
-        return redirect('home')
+        return redirect('dashboard')
 
 
 class DetailHall(generic.DetailView):
