@@ -5,8 +5,6 @@ name = "pypi"
 
 [packages]
 django = "*"
-django-widget-tweaks = "*"
-requests = "*"
 
 [dev-packages]
 

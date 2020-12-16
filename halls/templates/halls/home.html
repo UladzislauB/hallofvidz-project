@@ -1,5 +1,57 @@
 {% extends 'halls/base.html' %}
 
 {% block content %}
-<div class="container">Hello!</div>
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1>What would you like to add to your hall?</h1>
+            <p class="lead text-muted">You know what you are. There're you go to the videos. You have a top 10 list and
+                it's time to share them with the world. Click the button below to get started.</p>
+            <p><a href="{% url 'create_hall' %}" class="btn btn-primary">Create your personal Hall</a></p>
+        </div>
+    </section>
+    <div class="container">
+        <h1 class="text-center">Popular Halls</h1>
+        {% for hall in popular_halls %}
+            {% if hall.video_set.all %}
+                <h2><a href="{% url 'detail_hall' hall.id %}">{{ hall.title }}</a></h2>
+            {% endif %}
+            <div class="row">
+                {% for video in hall.video_set.all %}
+                    <div class="col-md-4 mt-3">
+                        <div class="card mb4 shadow-sm">
+                            <iframe width="100%" height="225" src="https://www.youtube.com/embed/{{ video.youtube_id }}"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                            <div class="card-body">
+                                <p class="card-text">{{ video.title }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <h1 class="text-center">Recent Halls</h1>
+        {% for hall in recent_halls %}
+            {% if hall.video_set.all %}
+                <h2><a href="{% url 'detail_hall' hall.id %}">{{ hall.title }}</a></h2>
+            {% endif %}
+            <div class="row">
+                {% for video in hall.video_set.all %}
+                    <div class="col-md-4 mt-3">
+                        <div class="card mb4 shadow-sm">
+                            <iframe width="100%" height="225" src="https://www.youtube.com/embed/{{ video.youtube_id }}"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                            <div class="card-body">
+                                <p class="card-text">{{ video.title }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
